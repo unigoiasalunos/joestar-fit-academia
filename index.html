@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joestar Fit - Sistema Completo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* VARIÁVEIS E TEMAS (Foco em Dark Mode Elegante) */
+        :root {
+            --bg-main: #0f0f12;
+            --bg-card: #18181c;
+            --bg-input: #222227;
+            --border-color: #2a2a32;
+            --primary: #3b82f6;      
+            --accent: #facc15;       
+            --success: #10b981;      
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        /* Simulador de Smartphone */
+        .phone-container {
+            width: 100%;
+            max-width: 410px;
+            height: 100vh;
+            max-height: 860px;
+            background-color: var(--bg-main);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+            border: 1px solid #222;
+        }
+
+        /* Cabecalho Principal */
+        .app-header {
+            padding: 20px 20px 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, #16161a, transparent);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-text { font-size: 22px; font-weight: 900; font-style: italic; letter-spacing: 0.5px; }
+        .logo-text span.blue { color: var(--primary); }
+        .logo-text span.star { color: var(--accent); margin: 0 2px; }
+
+        .notification-btn {
+            background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);
+            width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        /* Sistema de Telas */
+        .screen { flex: 1; overflow-y: auto; padding: 20px; display: none; padding-bottom: 90px; }
+        .screen.active { display: block; animation: screenFade 0.2s ease-in-out; }
+
+        @keyframes screenFade {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ESTILOS DE FORMULÁRIOS */
+        .auth-wrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 10px; }
+        .auth-brand { text-align: center; margin-bottom: 40px; }
+        .auth-brand .logo-text { font-size: 32px; }
+        .auth-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .auth-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
+        .input-group { position: relative; margin-bottom: 18px; }
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 16px 16px 16px 45px; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 14px; outline: none; transition: 0.2s; }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .btn-primary { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .auth-footer { text-align: center; margin-top: 25px; font-size: 14px; color: var(--text-muted); }
+        .auth-footer span { color: var(--primary); cursor: pointer; font-weight: 600; }
+
+        /* COMPONENTES GERAIS */
+        h2 { font-size: 22px; font-weight: 700; margin-bottom: 18px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+        .clickable-card { cursor: pointer; transition: 0.2s; }
+        .clickable-card:active { transform: scale(0.97); background-color: #202026; }
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .badge-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-status.success { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .badge-status.alert { background: rgba(250, 204, 21, 0.12); color: var(--accent); }
+        .icon-square { width: 44px; height: 44px; background-color: rgba(59, 130, 246, 0.1); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+        /* TABELAS */
+        .workout-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        .workout-table th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 10px 8px; border-bottom: 1px solid var(--border-color); }
+        .workout-table td { padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-main); }
+        .workout-table tr:last-child td { border-bottom: none; }
+        .workout-table td strong { color: var(--accent); }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); cursor: pointer; margin-bottom: 20px; font-weight: 600; font-size: 14px; }
+
+        /* GRÁFICOS MELHORADOS COM EIXO Y */
+        .chart-container { display: flex; height: 160px; margin-top: 20px; }
+        .y-axis { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-right: 12px; border-right: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px; padding-bottom: 20px;}
+        .chart-bars-area { display: flex; justify-content: space-around; align-items: flex-end; flex: 1; padding-left: 10px; }
+        .chart-bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;}
+        .chart-bar { width: 26px; background: var(--primary); border-radius: 4px 4px 0 0; min-height: 10px; transition: 0.5s ease-out; position: relative;}
+        .chart-bar.active { background: var(--accent); }
+        .chart-val { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
+        .chart-label { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+        /* LISTA DE OPÇÕES */
+        .menu-list { display: flex; flex-direction: column; }
+        .menu-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 4px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+        .menu-row:last-child { border-bottom: none; }
+        .menu-row:active { opacity: 0.6; }
+        .menu-left { display: flex; align-items: center; gap: 14px; font-size: 15px; }
+        .menu-left i { color: var(--primary); width: 20px; text-align: center; }
+        .menu-row > i { color: var(--text-muted); font-size: 12px; }
+
+        /* NAVEGAÇÃO INFERIOR */
+        .bottom-navbar { position: absolute; bottom: 0; left: 0; width: 100%; background-color: #141417; border-top: 1px solid var(--border-color); display: none; justify-content: space-around; padding: 12px 0 22px 0; z-index: 100; }
+        .nav-link { color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; cursor: pointer; width: 60px; transition: 0.2s; }
+        .nav-link i { font-size: 20px; }
+        .nav-link.active { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        
+        <header class="app-header" id="mainHeader" style="display: none;">
+            <div class="logo-text">JOESTAR<span class="star"><i class="fa-solid fa-star"></i></span><span class="blue">FIT</span></div>
+            <div class="notification-btn" onclick="alert('Nenhuma notificação nova no momento!')">
+                <i class="fa-regular fa-bell"></i>
+            </div>
+        </header>
+
+        <!-- TELAS DE AUTENTICAÇÃO -->
+        <div id="screen-login" class="screen active">
+            <div class="auth-wrapper">
+                <div class="auth-brand">
+                    <div class="logo-text">JOESTAR<span class="star"><i class="fa-solid fa-star"></i></span><span class="blue">FIT</span></div>
+                </div>
+                <h1 class="auth-title">Fazer Login</h1>
+                <p class="auth-subtitle">Acesse sua ficha de treinos e evolução.</p>
+                <div class="input-group"><i class="fa-solid fa-address-card"></i><input type="text" placeholder="Digite seu CPF" value="123.456.789-00"></div>
+                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" placeholder="Digite sua senha" value="******"></div>
+                <button class="btn-primary" onclick="window.executarLogin()">Entrar no Sistema</button>
+                <p class="auth-footer">Não possui uma conta? <span onclick="window.navegarPara('register')">Registrar-se</span></p>
+            </div>
+        </div>
+
+        <div id="screen-register" class="screen">
+            <div class="auth-wrapper">
+                <h1 class="auth-title">Criar Conta</h1>
+                <p class="auth-subtitle">Preencha os dados para efetuar a matrícula.</p>
+                <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" placeholder="Nome Completo"></div>
+                <div class="input-group"><i class="fa-solid fa-address-card"></i><input type="text" placeholder="CPF"></div>
+                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" placeholder="Crie uma senha"></div>
+                <button class="btn-primary" onclick="window.executarCadastro()">Finalizar Cadastro</button>
+                <p class="auth-footer">Já tem uma conta? <span onclick="window.navegarPara('login')">Fazer Login</span></p>
+            </div>
+        </div>
+
+        <!-- TELA: INÍCIO -->
+        <div id="screen-home" class="screen">
+            <h2>Olá, João Pedro!</h2>
+            <div class="card" style="border-left: 4px solid var(--success);">
+                <div class="card-header-flex">
+                    <span class="badge-status success"><i class="fa-solid fa-circle-check"></i> Plano Ativo</span>
+                    <span style="font-size: 13px; color: var(--text-muted);">Mensalidade</span>
+                </div>
+                <p style="font-size: 15px; font-weight: 600;">Sua mensalidade vence em <span style="color: var(--success); font-weight: 700;">12 dias</span></p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Próximo vencimento: 12 de Junho</p>
+            </div>
+            <div class="card clickable-card" onclick="window.abrirSubTela('treino-peito')">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div class="icon-square"><i class="fa-solid fa-dumbbell"></i></div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Treino de Hoje</span>
+                            <h3 style="font-size: 17px; margin-top: 2px;">Peito & Tríceps</h3>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+            <div class="card clickable-card" onclick="window.navegarParaSub('screen-dieta')">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div class="icon-square" style="background: rgba(250, 204, 21, 0.1); color: var(--accent);"><i class="fa-solid fa-apple-whole"></i></div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Alimentação</span>
+                            <h3 style="font-size: 17px; margin-top: 2px;">Plano Nutricional</h3>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA: TREINOS -->
+        <div id="screen-treinos" class="screen">
+            <h2>Planilhas de Treino</h2>
+            <div class="card clickable-card" onclick="window.abrirSubTela('treino-peito')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div><h3 style="font-size: 16px; margin-bottom: 6px;">Treino A - Peito & Tríceps</h3><span class="badge-status alert"><i class="fa-solid fa-fire"></i> 4 Exercícios</span></div>
+                    <div class="icon-square"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="card clickable-card" onclick="window.abrirSubTela('treino-costas')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div><h3 style="font-size: 16px; margin-bottom: 6px;">Treino B - Costas & Bíceps</h3><span class="badge-status alert"><i class="fa-solid fa-fire"></i> 3 Exercícios</span></div>
+                    <div class="icon-square"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="card clickable-card" onclick="window.abrirSubTela('treino-pernas')">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div><h3 style="font-size: 16px; margin-bottom: 6px;">Treino C - Membros Inferiores</h3><span class="badge-status alert"><i class="fa-solid fa-fire"></i> 4 Exercícios</span></div>
+                    <div class="icon-square"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUB-TELAS DE TREINO E DIETA -->
+        <div id="screen-treino-peito" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-treinos')"><i class="fa-solid fa-arrow-left"></i> Voltar para Treinos</div>
+            <h2>Ficha: Peito & Tríceps</h2>
+            <div class="card">
+                <table class="workout-table">
+                    <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th></tr></thead>
+                    <tbody>
+                        <tr><td>Supino Reto c/ Barra</td><td>4</td><td>10</td><td><strong>35 kg</strong></td></tr>
+                        <tr><td>Supino Inclinado Halt.</td><td>4</td><td>12</td><td><strong>26 kg</strong></td></tr>
+                        <tr><td>Crossover Polia Alta</td><td>3</td><td>15</td><td><strong>20 kg</strong></td></tr>
+                        <tr><td>Tríceps Pulley Barra</td><td>4</td><td>12</td><td><strong>45 kg</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="screen-treino-costas" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-treinos')"><i class="fa-solid fa-arrow-left"></i> Voltar para Treinos</div>
+            <h2>Ficha: Costas & Bíceps</h2>
+            <div class="card">
+                <table class="workout-table">
+                    <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th></tr></thead>
+                    <tbody>
+                        <tr><td>Puxada Alta Pronada</td><td>4</td><td>10</td><td><strong>55 kg</strong></td></tr>
+                        <tr><td>Remada Baixa Triângulo</td><td>4</td><td>12</td><td><strong>60 kg</strong></td></tr>
+                        <tr><td>Remada Curvada Barra</td><td>3</td><td>10</td><td><strong>20 kg</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="screen-treino-pernas" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-treinos')"><i class="fa-solid fa-arrow-left"></i> Voltar para Treinos</div>
+            <h2>Ficha: Membros Inferiores</h2>
+            <div class="card">
+                <table class="workout-table">
+                    <thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th></tr></thead>
+                    <tbody>
+                        <tr><td>Agachamento Livre</td><td>4</td><td>10</td><td><strong>40 kg</strong></td></tr>
+                        <tr><td>Leg Press 45º</td><td>4</td><td>12</td><td><strong>220 kg</strong></td></tr>
+                        <tr><td>Cadeira Extensora</td><td>3</td><td>15</td><td><strong>65 kg</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="screen-dieta" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-home')"><i class="fa-solid fa-arrow-left"></i> Voltar para Início</div>
+            <h2>Plano Alimentar</h2>
+            <div class="card">
+                <p style="font-weight: 600; color: var(--accent); margin-bottom: 4px;">Refeição 1 (Café da Manhã)</p>
+                <p style="font-size: 14px; color: var(--text-muted);">3 Ovos mexidos + 2 Fatias de pão integral</p>
+            </div>
+            <div class="card">
+                <p style="font-weight: 600; color: var(--accent); margin-bottom: 4px;">Refeição 2 (Almoço)</p>
+                <p style="font-size: 14px; color: var(--text-muted);">150g de Frango grelhado + 200g de Arroz + Salada</p>
+            </div>
+        </div>
+
+        <!-- TELA: PROGRESSO (Gráfico Melhorado e Descritivo) -->
+        <div id="screen-progresso" class="screen">
+            <h2>Evolução Corporal</h2>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 12px; color: var(--text-muted);">Peso Atual</span>
+                        <p style="font-size: 26px; font-weight: 800; margin-top: 2px;">84.2 <span style="font-size: 14px; font-weight: 400; color: var(--text-muted);">kg</span></p>
+                    </div>
+                    <span class="badge-status success"><i class="fa-solid fa-arrow-trend-down"></i> -4.8kg</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <h3 style="font-size: 15px; display: flex; align-items: center; gap: 8px;">Frequência de Treinos</h3>
+                    <span style="font-size: 11px; color: var(--text-muted);">Dias / Semana</span>
+                </div>
+                
+                <div class="chart-container">
+                    <!-- Eixo Y Descritivo -->
+                    <div class="y-axis">
+                        <span>7</span>
+                        <span>5</span>
+                        <span>3</span>
+                        <span>1</span>
+                    </div>
+                    <!-- Área das Barras -->
+                    <div class="chart-bars-area">
+                        <div class="chart-bar-wrapper">
+                            <span class="chart-val">3</span>
+                            <div class="chart-bar" style="height: 40px;"></div>
+                            <div class="chart-label">Sem 1</div>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <span class="chart-val">4</span>
+                            <div class="chart-bar" style="height: 60px;"></div>
+                            <div class="chart-label">Sem 2</div>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <span class="chart-val">2</span>
+                            <div class="chart-bar" style="height: 25px;"></div>
+                            <div class="chart-label">Sem 3</div>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <span class="chart-val" style="color: var(--accent);">5</span>
+                            <div class="chart-bar active" style="height: 80px;"></div>
+                            <div class="chart-label">Sem 4</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA: PERFIL -->
+        <div id="screen-perfil" class="screen">
+            <div style="text-align: center; margin-bottom: 25px; padding-top: 10px;">
+                <div style="width: 75px; height: 75px; background: #25252b; border-radius: 50%; margin: 0 auto 12px auto; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary);">
+                    <i class="fa-solid fa-user-ninja" style="font-size: 28px; color: var(--primary);"></i>
+                </div>
+                <h2 style="margin-bottom: 4px;">João Pedro</h2>
+                <p style="font-size: 13px; color: var(--text-muted);">ID Matrícula: #100381</p>
+            </div>
+            <div class="card">
+                <div class="menu-list">
+                    <!-- Substituído os alerts pelas chamadas das novas sub-telas -->
+                    <div class="menu-row" onclick="window.navegarParaSub('screen-metas')">
+                        <div class="menu-left"><i class="fa-solid fa-bullseye"></i> <span>Minhas Metas</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-row" onclick="window.navegarParaSub('screen-faturamento')">
+                        <div class="menu-left"><i class="fa-solid fa-credit-card"></i> <span>Mensalidades e Faturas</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-row" onclick="window.navegarParaSub('screen-configuracoes')">
+                        <div class="menu-left"><i class="fa-solid fa-sliders"></i> <span>Configurações</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-row" onclick="window.executarLogout()" style="color: #ef4444;">
+                        <div class="menu-left"><i class="fa-solid fa-right-from-bracket" style="color: #ef4444;"></i> <span>Sair do Aplicativo</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= NOVAS SUB-TELAS DO PERFIL ================= -->
+        
+        <!-- Tela de Metas -->
+        <div id="screen-metas" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-perfil')"><i class="fa-solid fa-arrow-left"></i> Voltar para Perfil</div>
+            <h2>Minhas Metas</h2>
+            
+            <div class="card" style="border-left: 4px solid var(--primary);">
+                <h3 style="font-size: 16px; margin-bottom: 6px;">Objetivo Principal</h3>
+                <p style="font-size: 14px; color: var(--text-muted);">Redução de BF (Percentual de Gordura) para 12%.</p>
+            </div>
+            
+            <div class="card" style="border-left: 4px solid var(--accent);">
+                <h3 style="font-size: 16px; margin-bottom: 6px;">Objetivo Secundário</h3>
+                <p style="font-size: 14px; color: var(--text-muted);">Ganho de massa magra funcional visando hipertrofia.</p>
+            </div>
+        </div>
+
+        <!-- Tela de Mensalidades (Faturamento) -->
+        <div id="screen-faturamento" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-perfil')"><i class="fa-solid fa-arrow-left"></i> Voltar para Perfil</div>
+            <h2>Mensalidades</h2>
+            
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
+                    <h3 style="font-size: 16px; color: var(--success);"><i class="fa-solid fa-check"></i> Pago</h3>
+                    <span style="font-size: 13px; color: var(--text-muted);">Maio/2026</span>
+                </div>
+                <p style="font-size: 14px;">Plano Joestar Premium</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Valor: R$ 119,90 via PIX</p>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
+                    <h3 style="font-size: 16px; color: var(--accent);"><i class="fa-solid fa-clock"></i> Próxima</h3>
+                    <span style="font-size: 13px; color: var(--text-muted);">Junho/2026</span>
+                </div>
+                <p style="font-size: 14px;">Plano Joestar Premium</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Vencimento em 12/06/2026</p>
+            </div>
+        </div>
+
+        <!-- Tela de Configurações -->
+        <div id="screen-configuracoes" class="screen">
+            <div class="back-btn" onclick="window.fecharSubTela('screen-perfil')"><i class="fa-solid fa-arrow-left"></i> Voltar para Perfil</div>
+            <h2>Configurações</h2>
+            
+            <div class="card">
+                <div class="menu-list">
+                    <div class="menu-row">
+                        <div class="menu-left"><i class="fa-solid fa-user-pen"></i> <span>Editar Dados Pessoais</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-row">
+                        <div class="menu-left"><i class="fa-solid fa-lock"></i> <span>Alterar Senha</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="menu-row">
+                        <div class="menu-left"><i class="fa-solid fa-bell"></i> <span>Notificações do App</span></div>
+                        <!-- Toggle visual simples simulado -->
+                        <div style="width: 36px; height: 20px; background: var(--primary); border-radius: 10px; position: relative;">
+                            <div style="width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px;"></div>
+                        </div>
+                    </div>
+                    <div class="menu-row">
+                        <div class="menu-left"><i class="fa-solid fa-shield-halved"></i> <span>Privacidade e LGPD</span></div><i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAVEGAÇÃO INFERIOR -->
+        <nav class="bottom-navbar" id="appNavbar">
+            <div class="nav-link active" onclick="window.trocarAbaPrincipal('home', this)"><i class="fa-solid fa-house"></i><span>Início</span></div>
+            <div class="nav-link" onclick="window.trocarAbaPrincipal('treinos', this)"><i class="fa-solid fa-dumbbell"></i><span>Treinos</span></div>
+            <div class="nav-link" onclick="window.trocarAbaPrincipal('progresso', this)"><i class="fa-solid fa-chart-simple"></i><span>Progresso</span></div>
+            <div class="nav-link" onclick="window.trocarAbaPrincipal('perfil', this)"><i class="fa-solid fa-user"></i><span>Perfil</span></div>
+        </nav>
+
+    </div>
+
+    <!-- SCRIPT GERAL PARA OS CLICKS -->
+    <script>
+        function ocultarTodasAsTelas() {
+            const telas = document.querySelectorAll('.screen');
+            telas.forEach(tela => tela.classList.remove('active'));
+        }
+
+        window.navegarPara = function(idTela) {
+            ocultarTodasAsTelas();
+            document.getElementById('screen-' + idTela).classList.add('active');
+        }
+
+        window.abrirSubTela = function(idSubTela) {
+            ocultarTodasAsTelas();
+            document.getElementById('screen-' + idSubTela).classList.add('active');
+        }
+
+        window.navegarParaSub = function(idCompleto) {
+            ocultarTodasAsTelas();
+            document.getElementById(idCompleto).classList.add('active');
+        }
+
+        window.fecharSubTela = function(idTelaPaiCompleta) {
+            ocultarTodasAsTelas();
+            document.getElementById(idTelaPaiCompleta).classList.add('active');
+        }
+
+        window.trocarAbaPrincipal = function(nomeAba, elementoClicado) {
+            ocultarTodasAsTelas();
+            document.getElementById('screen-' + nomeAba).classList.add('active');
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => link.classList.remove('active'));
+            if(elementoClicado) {
+                elementoClicado.classList.add('active');
+            }
+        }
+
+        window.executarLogin = function() {
+            document.getElementById('mainHeader').style.display = 'flex';
+            document.getElementById('appNavbar').style.display = 'flex';
+            window.trocarAbaPrincipal('home', document.querySelector('.nav-link'));
+        }
+
+        window.executarCadastro = function() {
+            alert('Cadastro efetuado com sucesso em nosso banco de dados! Faça seu login.');
+            window.navegarPara('login');
+        }
+
+        window.executarLogout = function() {
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('appNavbar').style.display = 'none';
+            window.navegarPara('login');
+        }
+    </script>
+</body>
+</html>
